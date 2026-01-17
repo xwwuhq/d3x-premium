@@ -1,5 +1,6 @@
-if _G.D3X_LOADED then return end
-_G.D3X_LOADED = true
+if _G.D3X_LOADER then return end
+_G.D3X_LOADER = true
 
-local url = "https://raw.githubusercontent.com/xwwuhq/d3x-premium/main/core.lua"
-loadstring(game:HttpGet(url))()
+loadstring(game:HttpGet(
+  "https://raw.githubusercontent.com/xwwuhq/d3x-premium/main/main.lua"
+))()
