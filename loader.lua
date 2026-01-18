@@ -1,7 +1,68 @@
--- ===============================
--- D3X PREMIUM - LOADER
--- Owner : xwwuhq
--- ===============================
+-- 404 Not Found 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- not found 
+
 
 if _G.D3X_LOADER then return end
 _G.D3X_LOADER = true
