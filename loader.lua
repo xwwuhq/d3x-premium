@@ -8,16 +8,17 @@ _G.D3X_LOADER = true
 
 print("[D3X] Loader initialisé")
 
--- Charger main.lua
+-- Charge main.lua (public)
 pcall(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xwwuhq/d3x-premium/main/main.lua"))()
-    print("[D3X] main.lua chargé ✅")
 end)
 
--- Charger delta.lua
+print("[D3X] main.lua chargé ✅")
+
+-- Charge delta.lua (vrai script caché)
 pcall(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xwwuhq/d3x-premium/main/delta.lua"))()
-    print("[D3X] delta.lua chargé ✅")
 end)
 
+print("[D3X] delta.lua chargé ✅")
 print("[D3X] Loader terminé")
