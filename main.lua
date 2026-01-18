@@ -1,31 +1,23 @@
--- D3X PREMIUM - MAIN SCRIPT
+-- ===============================
+-- D3X PREMIUM - MAIN
+-- Owner : xwwuhq
+-- ===============================
+
 if _G.D3X_MAIN then return end
 _G.D3X_MAIN = true
 
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
-print("[D3X] Main script loaded")
+print("[D3X] main.lua exécuté")
 
--- Fonction exemple
-local function notify(msg)
-    print("[D3X] "..msg)
-end
-
-notify("Script exécuté avec succès")
-
--- Exemple loop
 RunService.RenderStepped:Connect(function()
+    -- logique du panel / loop
 end)
 
--- Exemple input
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
     if input.KeyCode == Enum.KeyCode.RightShift then
-        notify("RightShift pressé")
+        print("[D3X] RightShift pressé")
     end
 end)
