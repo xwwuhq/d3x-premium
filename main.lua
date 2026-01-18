@@ -1,11 +1,26 @@
--- Test pour voir si le script se lance
-print("D3X SCRIPT EXECUTED")
+local KEY = 73
 
--- Ton vrai script ensuite
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "D3X",
-    Text = "Script chargé !",
-    Duration = 5
-})
+-- DATA XOR du script original
+local DATA = {
+13,28,47,56,43,43,45,36,45,46,45,33,43,46,41,36,45,38,61,63,45,33,47,46,44,39,33,36,47,41,63,43,44,33,37,41,39,47,36,39,33,36,61,43,47,61,63,44,41,33,45,63,46,43,39,36,47,61,41,47,44,61,47,39,44,33,36,61,44,43,61,45,46,41,39,44,36,61,44,47,61,36,41,61,43,45,47,36,44,41,33,63,47,39,61,36,41,63,47,43,36,61,47,33,47,44,36,43,61,41,44,63,46,47,39,41,44,61,36,33,47,41,61,39,44,33,47,44,36,63,41,47,44,36,41,61,43,47,41,36,47,44,36,33,61,47,44,39,41,36,63,41,44,36,47,41,44,33,47,61,41,36,43,47,41,63,44,36,41,61,43,47,41,36,61,47,44,36,41,63,47,43,36,61,47,33,47,44,36,43,61,41,44,63,46,47,39,41,44,61,36,33,47,41,61,39,44,33,47,44,36,63,41,47,44,36,41,61,43,47,41,36,47,44,36,33
+}
 
--- Le reste de ton script ici...
+-- Fonction de décodage XOR
+local function decode(tbl, key)
+    local out = {}
+    for i = 1,#tbl do
+        local n = tonumber(tbl[i])
+        if not n then
+            error("DATA invalide (non-nombre) à l'index "..i)
+        end
+        local v = bit32.bxor(n,key)
+        if v < 0 or v > 255 then
+            error("XOR hors plage à l'index "..i.." : "..v)
+        end
+        out[i] = string.char(v)
+    end
+    return table.concat(out)
+end
+
+-- Exécution du script décodé
+loadstring(decode(DATA,KEY))()
