@@ -1,7 +1,7 @@
 -- ===============================
 -- D3X PREMIUM - LOADER
 -- Owner : xwwuhq
--- Secure Loader (Base64)
+-- Secure Loader
 -- ===============================
 
 if _G.D3X_LOADER then
