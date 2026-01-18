@@ -9,7 +9,7 @@ _G.D3X_DELTA = true
 local KEY = 73
 
 local DATA = {
-    -- ICI tu colles TOUS les nombres XOR (sans couper)
+    57,59,32,39,61,97,107,13,12,5,29,8,105,6,2,107,96
 }
 
 local function decode(tbl, key)
