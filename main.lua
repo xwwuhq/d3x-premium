@@ -490,8 +490,7 @@
 
 -- // 1. CONFIGURATION (METS TON ID ICI) //
 local Whitelisted_IDs = {
-    123456789, -- <--- REMPLACE CE NOMBRE PAR TON ID ROBLOX A TOI
-    000000000  -- Tu peux mettre l'ID d'un ami ici si tu veux
+    9645078432,
 }
 
 -- // 2. NE TOUCHE PAS EN DESSOUS //
