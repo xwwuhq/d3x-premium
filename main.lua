@@ -484,13 +484,97 @@
 
 
 
+
+ 
+ 
+
+-- // SYSTEME DE SECURITÉ & LOADING UI //
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+
+-- >>> CONFIGURATION WHITELIST <<<
+local Whitelist = {
+    1234567890, -- Mets l'ID de ton pote ici
+    156748920,  -- Ton ID
+}
+
+-- CREATION DU LOADING UI
+local LoadingGui = Instance.new("ScreenGui")
+LoadingGui.Name = "D3X_Security_Check"
+LoadingGui.IgnoreGuiInset = true
+LoadingGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local BgFrame = Instance.new("Frame")
+BgFrame.Size = UDim2.new(1, 0, 1, 0)
+BgFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15) -- Fond sombre
+BgFrame.ZIndex = 9999
+BgFrame.Parent = LoadingGui
+
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Size = UDim2.new(1, 0, 0, 50)
+StatusLabel.Position = UDim2.new(0, 0, 0.45, 0)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Font = Enum.Font.GothamBlack
+StatusLabel.TextSize = 24
+StatusLabel.TextColor3 = Color3.fromRGB(170, 0, 255) -- VIOLET D3X
+StatusLabel.Text = "INITIALISATION..."
+StatusLabel.Parent = BgFrame
+
+local Bar = Instance.new("Frame")
+Bar.Size = UDim2.new(0, 0, 0, 4)
+Bar.Position = UDim2.new(0.3, 0, 0.55, 0)
+Bar.BackgroundColor3 = Color3.fromRGB(170, 0, 255) -- VIOLET
+Bar.BorderSizePixel = 0
+Bar.Parent = BgFrame
+
+-- ANIMATION DE CHARGEMENT
+task.wait(1)
+StatusLabel.Text = "VÉRIFICATION DE LA BASE DE DONNÉES..."
+TweenService:Create(Bar, TweenInfo.new(1.5, Enum.EasingStyle.Quad), {Size = UDim2.new(0.2, 0, 0, 4)}):Play()
+task.wait(2)
+
+StatusLabel.Text = "RECHERCHE EN COURS..."
+TweenService:Create(Bar, TweenInfo.new(1.5, Enum.EasingStyle.Quad), {Size = UDim2.new(0.4, 0, 0, 4)}):Play()
+task.wait(2)
+
+-- VÉRIFICATION ID
+local isAllowed = false
+for _, id in ipairs(Whitelist) do
+    if LocalPlayer.UserId == id then
+        isAllowed = true
+        break
+    end
+end
+
+if isAllowed then
+    -- SI ACCÈS AUTORISÉ
+    StatusLabel.TextColor3 = Color3.fromRGB(39, 201, 63) -- VERT
+    StatusLabel.Text = "ACCÈS AUTORISÉ - BIENVENUE " .. string.upper(LocalPlayer.DisplayName)
+    TweenService:Create(Bar, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {Size = UDim2.new(0.4, 0, 0, 4), BackgroundColor3 = Color3.fromRGB(39, 201, 63)}):Play()
+    task.wait(1.5)
+    LoadingGui:Destroy() -- On supprime l'écran de chargement et on lance le script
+else
+    -- SI ACCÈS REFUSÉ
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- ROUGE
+    StatusLabel.Text = "VOUS N'AVEZ PAS ACCÈS AU SCRIPT"
+    Bar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    task.wait(3)
+    LoadingGui:Destroy()
+    return -- STOP TOUT ICI
+end
+
+-- =================================================================
+-- DEBUT DU SCRIPT ORIGINAL (AVEC MODIFICATION NOM GALAXY -> D3X HUB)
+-- =================================================================
+
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
+
 
 local THEME = {
     Bg = Color3.fromRGB(15, 15, 20),
@@ -505,11 +589,12 @@ local THEME = {
     MacGreen = Color3.fromRGB(39, 201, 63)
 }
 
-local LOGO_ID = "rbxassetid://1768252137713" -- Ton image convertie en asset Roblox
-
 local State = { NoAnim = false, FpsKiller = false, IsMinimized = false, ItemEspActive = false, FpsBoostActive = false, PlayerEspActive = false }
 local SIZES = { Full = UDim2.new(0, 550, 0, 320), Mini = UDim2.new(0, 140, 0, 320) }
 
+-- 1. FONCTIONS RÉELLES
+
+-- Fonction ESP PLAYER (HIGHLIGHT)
 local function executePlayerEsp()
     if State.PlayerEspActive then return end
     State.PlayerEspActive = true
@@ -539,8 +624,10 @@ local function executePlayerEsp()
 
     for _, p in pairs(Players:GetPlayers()) do onPlayer(p) end
     Players.PlayerAdded:Connect(onPlayer)
+    warn("[ESP PLAYER] Silhouette rouge activée")
 end
 
+-- Fonction FPS BOOST
 local function executeFpsBoost()
     if State.FpsBoostActive then return end
     State.FpsBoostActive = true
@@ -582,8 +669,10 @@ local function executeFpsBoost()
             obj.Transparency = 1
         end
     end)
+    warn("[FPS BOOST] Activé")
 end
 
+-- Fonction ESP ITEM IMAGE
 local function executeItemEsp()
     if State.ItemEspActive then return end
     State.ItemEspActive = true
@@ -650,6 +739,7 @@ local function executeItemEsp()
     Players.PlayerRemoving:Connect(removeESP)
 end
 
+-- Fonction DYSCN
 local function executeDyscn()
     local FFlags = {
         GameNetPVHeaderRotationalVelocityZeroCutoffExponent = -5000,
@@ -719,6 +809,7 @@ local function executeDyscn()
     respawnar(Player)
 end
 
+-- Boucle FPS KILLER
 task.spawn(function()
     while true do
         if State.FpsKiller then
@@ -737,6 +828,7 @@ task.spawn(function()
     end
 end)
 
+-- Fonction NO ANIM
 local function applyNoAnim()
     local char = Player.Character
     if char then
@@ -757,34 +849,38 @@ Player.CharacterAdded:Connect(function()
     if State.NoAnim then applyNoAnim() end
 end)
 
+-- // 2. INTERFACE //
+
 if PlayerGui:FindFirstChild("D3X_V4") then PlayerGui.D3X_V4:Destroy() end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "D3X_V4"; ScreenGui.ResetOnSpawn = false; ScreenGui.Parent = PlayerGui
 
--- BOUTON FLOTTANT AVEC TON IMAGE
-local ToggleBtn = Instance.new("ImageButton")
+-- !!! NOUVEAU : BOUTON TOGGLE (OUVRIR/FERMER) !!!
+local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Name = "ToggleBtn"
-ToggleBtn.Size = UDim2.new(0, 55, 0, 55)
-ToggleBtn.Position = UDim2.new(0, 20, 0, 20)
+ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Position = UDim2.new(0, 20, 0, 20) -- Position en haut à gauche
 ToggleBtn.BackgroundColor3 = THEME.Sidebar
-ToggleBtn.Image = LOGO_ID
-ToggleBtn.ClipsDescendants = true
+ToggleBtn.Text = "D3X"
+ToggleBtn.Font = Enum.Font.GothamBlack
+ToggleBtn.TextColor3 = THEME.Accent
+ToggleBtn.TextSize = 14
 ToggleBtn.Parent = ScreenGui
-Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
-local Stroke = Instance.new("UIStroke", ToggleBtn)
-Stroke.Color = THEME.Accent
-Stroke.Thickness = 2
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0) -- Rond
+Instance.new("UIStroke", ToggleBtn).Color = THEME.Accent
+ToggleBtn.UIStroke.Thickness = 2
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"; MainFrame.Size = SIZES.Full; MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5); MainFrame.BackgroundColor3 = THEME.Bg
 MainFrame.BackgroundTransparency = 0.15; MainFrame.ClipsDescendants = true
 MainFrame.Visible = true 
-MainFrame.Active = true
-MainFrame.Draggable = true
+MainFrame.Active = true -- IMPORTANT pour le déplacement
+MainFrame.Draggable = true -- REND LE PANEL DEPLAÇABLE
 MainFrame.Parent = ScreenGui
 
+-- Logique du bouton Toggle
 ToggleBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
@@ -792,6 +888,7 @@ end)
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
 Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(60,60,70)
 
+-- SIDEBAR
 local Sidebar = Instance.new("Frame")
 Sidebar.Name = "Sidebar"; Sidebar.Size = UDim2.new(0, 140, 1, 0); Sidebar.BackgroundColor3 = THEME.Sidebar
 Sidebar.BackgroundTransparency = 0.1; Sidebar.Parent = MainFrame
@@ -805,15 +902,7 @@ local SideLine = Instance.new("Frame")
 SideLine.Size = UDim2.new(0, 1, 1, 0); SideLine.Position = UDim2.new(1, 0, 0, 0)
 SideLine.BackgroundColor3 = Color3.fromRGB(45, 45, 55); SideLine.BorderSizePixel = 0; SideLine.Parent = Sidebar
 
--- IMAGE RONDE EN HAUT À GAUCHE DU PANEL
-local PanelLogo = Instance.new("ImageLabel")
-PanelLogo.Size = UDim2.new(0, 40, 0, 40)
-PanelLogo.Position = UDim2.new(0, 12, 0, 12)
-PanelLogo.BackgroundTransparency = 1
-PanelLogo.Image = LOGO_ID
-PanelLogo.Parent = Sidebar
-Instance.new("UICorner", PanelLogo).CornerRadius = UDim.new(1, 0)
-
+-- BOUTONS MAC
 local MacContainer = Instance.new("Frame")
 MacContainer.Size = UDim2.new(0, 60, 0, 20); MacContainer.Position = UDim2.new(1, -70, 0, 15)
 MacContainer.BackgroundTransparency = 1; MacContainer.ZIndex = 100; MacContainer.Parent = MainFrame
@@ -836,20 +925,23 @@ createMacDot(THEME.MacYellow, 18, function()
     TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart), {Size = SIZES.Mini}):Play()
 end)
 
+-- Le bouton Rouge CACHE le panel, il ne le détruit pas (comme ça tu peux le rouvrir)
 createMacDot(THEME.MacRed, 36, function() MainFrame.Visible = false end)
 
+-- TITRES
 local AppTitle = Instance.new("TextLabel")
-AppTitle.Text = "D3X BETA"; AppTitle.Font = Enum.Font.GothamBlack; AppTitle.TextSize = 18
+AppTitle.Text = "D3X BETA"; AppTitle.Font = Enum.Font.GothamBlack; AppTitle.TextSize = 20
 AppTitle.TextColor3 = THEME.Secondary; AppTitle.Size = UDim2.new(1, 0, 0, 30)
-AppTitle.Position = UDim2.new(0, 12, 0, 55); AppTitle.BackgroundTransparency = 1
+AppTitle.Position = UDim2.new(0, 12, 0, 20); AppTitle.BackgroundTransparency = 1
 AppTitle.TextXAlignment = Enum.TextXAlignment.Left; AppTitle.Parent = Sidebar
 
 local VerLabel = Instance.new("TextLabel")
 VerLabel.Text = "v1.1 | PREMIUM"; VerLabel.Font = Enum.Font.GothamBold; VerLabel.TextSize = 9
-VerLabel.TextColor3 = THEME.SubText; VerLabel.Position = UDim2.new(0, 12, 0, 75)
+VerLabel.TextColor3 = THEME.SubText; VerLabel.Position = UDim2.new(0, 12, 0, 43)
 VerLabel.Size = UDim2.new(0, 100, 0, 15); VerLabel.BackgroundTransparency = 1
 VerLabel.TextXAlignment = Enum.TextXAlignment.Left; VerLabel.Parent = Sidebar
 
+-- PAGE SYSTEM
 local PageContainer = Instance.new("Frame")
 PageContainer.Name = "PageContainer"; PageContainer.Size = UDim2.new(1, -160, 1, -60)
 PageContainer.Position = UDim2.new(0, 150, 0, 50); PageContainer.BackgroundTransparency = 1; PageContainer.Parent = MainFrame
@@ -865,6 +957,7 @@ for name, frame in pairs(Pages) do
     frame.Visible = (name == "Home"); frame.Parent = PageContainer
 end
 
+-- TABS
 local function createTab(text, target, yPos)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.85, 0, 0, 35); btn.Position = UDim2.new(0.07, 0, 0, yPos)
@@ -883,17 +976,19 @@ local function createTab(text, target, yPos)
     return btn
 end
 
-createTab("ACCUEIL", "Home", 110).TextColor3 = Color3.new(1,1,1)
-createTab("ESP", "Esp", 150)
-createTab("BOOST", "Boost", 190)
+createTab("HOME", "Home", 90).TextColor3 = Color3.new(1,1,1)
+createTab("ESP", "Esp", 130)
+createTab("BOOST", "Boost", 170)
 
+-- DISCORD
 local DiscordBtn = Instance.new("TextButton")
 DiscordBtn.Size = UDim2.new(0.8, 0, 0, 28); DiscordBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
-DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242); DiscordBtn.Text = "COPIER DISCORD"
+DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242); DiscordBtn.Text = "COPY DISCORD"
 DiscordBtn.Font = Enum.Font.GothamBold; DiscordBtn.TextSize = 10; DiscordBtn.TextColor3 = Color3.new(1,1,1); DiscordBtn.Parent = Sidebar
 Instance.new("UICorner", DiscordBtn).CornerRadius = UDim.new(0, 6)
-DiscordBtn.MouseButton1Click:Connect(function() setclipboard("https://discord.gg/DzQBME7BjJ") DiscordBtn.Text = "COPIÉ !" task.wait(2) DiscordBtn.Text = "COPIER DISCORD" end)
+DiscordBtn.MouseButton1Click:Connect(function() setclipboard("https://discord.gg/DzQBME7BjJ") DiscordBtn.Text = "COPIED!" task.wait(2) DiscordBtn.Text = "COPY DISCORD" end)
 
+-- PROFIL
 local Profile = Instance.new("Frame")
 Profile.Size = UDim2.new(1, 0, 0, 65); Profile.Position = UDim2.new(0, 0, 1, -65); Profile.BackgroundColor3 = Color3.new(0,0,0)
 Profile.BackgroundTransparency = 0.6; Profile.Parent = Sidebar; Instance.new("UICorner", Profile).CornerRadius = UDim.new(0, 12)
@@ -904,9 +999,10 @@ NameLbl.TextColor3 = Color3.new(1,1,1); NameLbl.Position = UDim2.new(0, 12, 0, 1
 NameLbl.BackgroundTransparency = 1; NameLbl.TextXAlignment = Enum.TextXAlignment.Left; NameLbl.Parent = Profile
 
 local OwnerLbl = Instance.new("TextLabel")
-OwnerLbl.Text = "Créé par X77"; OwnerLbl.Font = Enum.Font.Gotham; OwnerLbl.TextSize = 9
+OwnerLbl.Text = "Owner by X77"; OwnerLbl.Font = Enum.Font.Gotham; OwnerLbl.TextSize = 9
 OwnerLbl.TextColor3 = THEME.SubText; OwnerLbl.Position = UDim2.new(0, 12, 0, 32); OwnerLbl.BackgroundTransparency = 1; OwnerLbl.TextXAlignment = Enum.TextXAlignment.Left; OwnerLbl.Parent = Profile
 
+-- FEATURES GENERATOR
 local function createFeatureBtn(text, desc, yOrder, parentPage, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.95, 0, 0, 55); btn.Position = UDim2.new(0, 0, 0, 0 + (yOrder-1)*62)
@@ -924,22 +1020,27 @@ local function createFeatureBtn(text, desc, yOrder, parentPage, callback)
     btn.MouseButton1Click:Connect(function() callback(t) end)
 end
 
-createFeatureBtn("DYSCN", "Injecter les FFlags de Physique", 1, Pages.Home, function(t) 
-    t.TextColor3 = THEME.Secondary; t.Text = "DYSCN : ACTIVÉ"; executeDyscn() 
+-- ASSIGNATION DES BOUTONS
+
+-- PAGE HOME
+createFeatureBtn("DYSCN", "Inject Physics FFlags", 1, Pages.Home, function(t) 
+    t.TextColor3 = THEME.Secondary; t.Text = "DYSCN : ACTIVE"; executeDyscn() 
 end)
 
-createFeatureBtn("FPS KILLER", "Mode Lag Switch (Besoin d'une Batte)", 2, Pages.Home, function(t) 
+createFeatureBtn("FPS KILLER", "Lag Switch Mode (Need Bat)", 2, Pages.Home, function(t) 
     State.FpsKiller = not State.FpsKiller; t.TextColor3 = State.FpsKiller and THEME.MacRed or Color3.new(1,1,1); t.Text = State.FpsKiller and "FPS KILLER : ON" or "FPS KILLER"
 end)
 
-createFeatureBtn("NO ANIM", "Désactiver les animations du perso", 3, Pages.Home, function(t) 
+createFeatureBtn("NO ANIM", "Disable Character Animations", 3, Pages.Home, function(t) 
     State.NoAnim = not State.NoAnim; t.TextColor3 = State.NoAnim and THEME.MacGreen or Color3.new(1,1,1); t.Text = State.NoAnim and "NO ANIM : ON" or "NO ANIM"; applyNoAnim()
 end)
 
-createFeatureBtn("INSTANT STEAL", "Ouvrir Galaxy UI (Save Base & TP)", 4, Pages.Home, function(t)
+--  INSTANT STEAL 
+createFeatureBtn("INSTANT STEAL", "Open Galaxy UI (Save Base & TP)", 4, Pages.Home, function(t)
     t.TextColor3 = THEME.Secondary
-    t.Text = "LANCÉ"
+    t.Text = "LAUNCHED"
 
+    -- DEBUT DU SCRIPT GALAXY UI
     local GalaxyPlayers = game:GetService("Players")
     local GalaxyPlayer = GalaxyPlayers.LocalPlayer
     local BASE_CF = nil
@@ -962,13 +1063,13 @@ createFeatureBtn("INSTANT STEAL", "Ouvrir Galaxy UI (Save Base & TP)", 4, Pages.
     frame.Position = UDim2.new(0.5, -150, 0.5, -100)
     frame.BackgroundColor3 = THEME.Bg
     frame.BackgroundTransparency = 0.1
-    frame.Active = true
+    frame.Active = true -- Draggable pour le Galaxy UI aussi
     frame.Draggable = true
     frame.Parent = gui
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0,12)
 
     local title = Instance.new("TextLabel")
-    title.Text = "GALAXY UI"
+    title.Text = "D3X HUB PREMIUM" -- >>> MODIFICATION DU NOM ICI
     title.Font = Enum.Font.GothamBlack
     title.TextSize = 16
     title.TextColor3 = THEME.Secondary
@@ -977,8 +1078,9 @@ createFeatureBtn("INSTANT STEAL", "Ouvrir Galaxy UI (Save Base & TP)", 4, Pages.
     title.BackgroundTransparency = 1
     title.Parent = frame
 
+    -- Bouton TP Base
     local tpBtn = Instance.new("TextButton")
-    tpBtn.Text = "TP À LA BASE"
+    tpBtn.Text = "TP TO BASE"
     tpBtn.Font = Enum.Font.GothamBold
     tpBtn.TextSize = 12
     tpBtn.TextColor3 = Color3.new(1,1,1)
@@ -989,8 +1091,9 @@ createFeatureBtn("INSTANT STEAL", "Ouvrir Galaxy UI (Save Base & TP)", 4, Pages.
     Instance.new("UICorner", tpBtn).CornerRadius = UDim.new(0,8)
     tpBtn.MouseButton1Click:Connect(tpBase)
 
+    -- Stocker la position de base
     local storeBtn = Instance.new("TextButton")
-    storeBtn.Text = "SAUVEGARDER BASE"
+    storeBtn.Text = "STORE BASE"
     storeBtn.Font = Enum.Font.GothamBold
     storeBtn.TextSize = 12
     storeBtn.TextColor3 = Color3.new(1,1,1)
@@ -1006,12 +1109,13 @@ createFeatureBtn("INSTANT STEAL", "Ouvrir Galaxy UI (Save Base & TP)", 4, Pages.
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if hrp then
                 BASE_CF = hrp.CFrame
-                storeBtn.Text = "BASE SAUVEGARDÉE"
-                task.delay(2,function() storeBtn.Text = "SAUVEGARDER BASE" end)
+                storeBtn.Text = "BASE STORED"
+                task.delay(2,function() storeBtn.Text = "STORE BASE" end)
             end
         end
     end)
 
+    -- Ajouter un bouton pour fermer
     local closeBtn = Instance.new("TextButton")
     closeBtn.Text = "X"
     closeBtn.Font = Enum.Font.GothamBold
@@ -1023,8 +1127,10 @@ createFeatureBtn("INSTANT STEAL", "Ouvrir Galaxy UI (Save Base & TP)", 4, Pages.
     closeBtn.Parent = frame
     Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1,0)
     closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
+    -- FIN GALAXY UI
 end)
 
+-- PAGE ESP
 createFeatureBtn("PLAYER ESP", "Silhouette Rouge", 1, Pages.Esp, function(t)
     t.TextColor3 = THEME.Secondary; t.Text = "PLAYER ESP : ON"
     executePlayerEsp()
@@ -1035,9 +1141,11 @@ createFeatureBtn("ITEM ESP", "Affiche l'image de l'objet", 2, Pages.Esp, functio
     executeItemEsp()
 end)
 
+-- PAGE BOOST
 createFeatureBtn("FPS BOOST", "Optimisation maximale", 1, Pages.Boost, function(t)
     t.TextColor3 = THEME.Secondary; t.Text = "FPS BOOST : ON"
     executeFpsBoost()
 end)
 
+-- IMPORTANT: ON AFFICHE LE GUI À LA FIN 
 MainFrame.Visible = true
