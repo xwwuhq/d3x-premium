@@ -505,6 +505,8 @@ local THEME = {
     MacGreen = Color3.fromRGB(39, 201, 63)
 }
 
+local LOGO_ID = "rbxassetid://1768252137713" -- Ton image convertie en asset Roblox
+
 local State = { NoAnim = false, FpsKiller = false, IsMinimized = false, ItemEspActive = false, FpsBoostActive = false, PlayerEspActive = false }
 local SIZES = { Full = UDim2.new(0, 550, 0, 320), Mini = UDim2.new(0, 140, 0, 320) }
 
@@ -760,19 +762,19 @@ if PlayerGui:FindFirstChild("D3X_V4") then PlayerGui.D3X_V4:Destroy() end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "D3X_V4"; ScreenGui.ResetOnSpawn = false; ScreenGui.Parent = PlayerGui
 
-local ToggleBtn = Instance.new("TextButton")
+-- BOUTON FLOTTANT AVEC TON IMAGE
+local ToggleBtn = Instance.new("ImageButton")
 ToggleBtn.Name = "ToggleBtn"
-ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Size = UDim2.new(0, 55, 0, 55)
 ToggleBtn.Position = UDim2.new(0, 20, 0, 20)
 ToggleBtn.BackgroundColor3 = THEME.Sidebar
-ToggleBtn.Text = "D3X"
-ToggleBtn.Font = Enum.Font.GothamBlack
-ToggleBtn.TextColor3 = THEME.Accent
-ToggleBtn.TextSize = 14
+ToggleBtn.Image = LOGO_ID
+ToggleBtn.ClipsDescendants = true
 ToggleBtn.Parent = ScreenGui
 Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
-Instance.new("UIStroke", ToggleBtn).Color = THEME.Accent
-ToggleBtn.UIStroke.Thickness = 2
+local Stroke = Instance.new("UIStroke", ToggleBtn)
+Stroke.Color = THEME.Accent
+Stroke.Thickness = 2
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"; MainFrame.Size = SIZES.Full; MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -803,6 +805,15 @@ local SideLine = Instance.new("Frame")
 SideLine.Size = UDim2.new(0, 1, 1, 0); SideLine.Position = UDim2.new(1, 0, 0, 0)
 SideLine.BackgroundColor3 = Color3.fromRGB(45, 45, 55); SideLine.BorderSizePixel = 0; SideLine.Parent = Sidebar
 
+-- IMAGE RONDE EN HAUT À GAUCHE DU PANEL
+local PanelLogo = Instance.new("ImageLabel")
+PanelLogo.Size = UDim2.new(0, 40, 0, 40)
+PanelLogo.Position = UDim2.new(0, 12, 0, 12)
+PanelLogo.BackgroundTransparency = 1
+PanelLogo.Image = LOGO_ID
+PanelLogo.Parent = Sidebar
+Instance.new("UICorner", PanelLogo).CornerRadius = UDim.new(1, 0)
+
 local MacContainer = Instance.new("Frame")
 MacContainer.Size = UDim2.new(0, 60, 0, 20); MacContainer.Position = UDim2.new(1, -70, 0, 15)
 MacContainer.BackgroundTransparency = 1; MacContainer.ZIndex = 100; MacContainer.Parent = MainFrame
@@ -828,14 +839,14 @@ end)
 createMacDot(THEME.MacRed, 36, function() MainFrame.Visible = false end)
 
 local AppTitle = Instance.new("TextLabel")
-AppTitle.Text = "D3X BETA"; AppTitle.Font = Enum.Font.GothamBlack; AppTitle.TextSize = 20
+AppTitle.Text = "D3X BETA"; AppTitle.Font = Enum.Font.GothamBlack; AppTitle.TextSize = 18
 AppTitle.TextColor3 = THEME.Secondary; AppTitle.Size = UDim2.new(1, 0, 0, 30)
-AppTitle.Position = UDim2.new(0, 12, 0, 20); AppTitle.BackgroundTransparency = 1
+AppTitle.Position = UDim2.new(0, 12, 0, 55); AppTitle.BackgroundTransparency = 1
 AppTitle.TextXAlignment = Enum.TextXAlignment.Left; AppTitle.Parent = Sidebar
 
 local VerLabel = Instance.new("TextLabel")
 VerLabel.Text = "v1.1 | PREMIUM"; VerLabel.Font = Enum.Font.GothamBold; VerLabel.TextSize = 9
-VerLabel.TextColor3 = THEME.SubText; VerLabel.Position = UDim2.new(0, 12, 0, 43)
+VerLabel.TextColor3 = THEME.SubText; VerLabel.Position = UDim2.new(0, 12, 0, 75)
 VerLabel.Size = UDim2.new(0, 100, 0, 15); VerLabel.BackgroundTransparency = 1
 VerLabel.TextXAlignment = Enum.TextXAlignment.Left; VerLabel.Parent = Sidebar
 
@@ -872,9 +883,9 @@ local function createTab(text, target, yPos)
     return btn
 end
 
-createTab("ACCUEIL", "Home", 90).TextColor3 = Color3.new(1,1,1)
-createTab("ESP", "Esp", 130)
-createTab("BOOST", "Boost", 170)
+createTab("ACCUEIL", "Home", 110).TextColor3 = Color3.new(1,1,1)
+createTab("ESP", "Esp", 150)
+createTab("BOOST", "Boost", 190)
 
 local DiscordBtn = Instance.new("TextButton")
 DiscordBtn.Size = UDim2.new(0.8, 0, 0, 28); DiscordBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
