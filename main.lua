@@ -487,13 +487,10 @@
 
  
  
--- // CONFIGURATION WHITELIST //
+
 local Whitelisted_IDs = {
-    123456789,  -- Remplace par ton ID Roblox
-    987654321,  -- ID de l'ami 1
-    555555555,  -- ID de l'ami 2
-    111111111   -- ID de l'ami 3
-}
+    9645078432,   
+ }
 
 -- // SYSTÈME DE VÉRIFICATION //
 local Players = game:GetService("Players")
