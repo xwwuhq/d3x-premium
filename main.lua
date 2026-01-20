@@ -487,92 +487,71 @@
 
  
  
-
--- // SYSTEME DE SECURITÉ & LOADING UI //
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local TweenService = game:GetService("TweenService")
-
--- >>> CONFIGURATION WHITELIST <<<
-local Whitelist = {
-    9645078432, -- x77uhq
-    
+-- // CONFIGURATION WHITELIST //
+local Whitelisted_IDs = {
+    123456789,  -- Remplace par ton ID Roblox
+    987654321,  -- ID de l'ami 1
+    555555555,  -- ID de l'ami 2
+    111111111   -- ID de l'ami 3
 }
 
--- CREATION DU LOADING UI
-local LoadingGui = Instance.new("ScreenGui")
-LoadingGui.Name = "D3X_Security_Check"
-LoadingGui.IgnoreGuiInset = true
-LoadingGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+-- // SYSTÈME DE VÉRIFICATION //
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local LocalPlayer = Players.LocalPlayer
+local UserId = LocalPlayer.UserId
+local Authorized = false
 
-local BgFrame = Instance.new("Frame")
-BgFrame.Size = UDim2.new(1, 0, 1, 0)
-BgFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15) -- Fond sombre
-BgFrame.ZIndex = 9999
-BgFrame.Parent = LoadingGui
+-- Simulation "Recherche Base de données"
+StarterGui:SetCore("SendNotification", {
+    Title = "D3X SECURITY",
+    Text = "Connexion à la base de données...",
+    Duration = 2
+})
+task.wait(1.5) -- Petit délai pour le style
 
-local StatusLabel = Instance.new("TextLabel")
-StatusLabel.Size = UDim2.new(1, 0, 0, 50)
-StatusLabel.Position = UDim2.new(0, 0, 0.45, 0)
-StatusLabel.BackgroundTransparency = 1
-StatusLabel.Font = Enum.Font.GothamBlack
-StatusLabel.TextSize = 24
-StatusLabel.TextColor3 = Color3.fromRGB(170, 0, 255) -- VIOLET D3X
-StatusLabel.Text = "INITIALISATION..."
-StatusLabel.Parent = BgFrame
+StarterGui:SetCore("SendNotification", {
+    Title = "DATABASE",
+    Text = "Vérification de l'ID : " .. UserId,
+    Duration = 2
+})
+task.wait(1.5)
 
-local Bar = Instance.new("Frame")
-Bar.Size = UDim2.new(0, 0, 0, 4)
-Bar.Position = UDim2.new(0.3, 0, 0.55, 0)
-Bar.BackgroundColor3 = Color3.fromRGB(170, 0, 255) -- VIOLET
-Bar.BorderSizePixel = 0
-Bar.Parent = BgFrame
-
--- ANIMATION DE CHARGEMENT
-task.wait(1)
-StatusLabel.Text = "VÉRIFICATION DE LA BASE DE DONNÉES..."
-TweenService:Create(Bar, TweenInfo.new(1.5, Enum.EasingStyle.Quad), {Size = UDim2.new(0.2, 0, 0, 4)}):Play()
-task.wait(2)
-
-StatusLabel.Text = "RECHERCHE EN COURS..."
-TweenService:Create(Bar, TweenInfo.new(1.5, Enum.EasingStyle.Quad), {Size = UDim2.new(0.4, 0, 0, 4)}):Play()
-task.wait(2)
-
--- VÉRIFICATION ID
-local isAllowed = false
-for _, id in ipairs(Whitelist) do
-    if LocalPlayer.UserId == id then
-        isAllowed = true
+-- Vérification réelle
+for _, id in pairs(Whitelisted_IDs) do
+    if UserId == id then
+        Authorized = true
         break
     end
 end
 
-if isAllowed then
-    -- SI ACCÈS AUTORISÉ
-    StatusLabel.TextColor3 = Color3.fromRGB(39, 201, 63) -- VERT
-    StatusLabel.Text = "ACCÈS AUTORISÉ - BIENVENUE " .. string.upper(LocalPlayer.DisplayName)
-    TweenService:Create(Bar, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {Size = UDim2.new(0.4, 0, 0, 4), BackgroundColor3 = Color3.fromRGB(39, 201, 63)}):Play()
-    task.wait(1.5)
-    LoadingGui:Destroy() -- On supprime l'écran de chargement et on lance le script
+if Authorized then
+    StarterGui:SetCore("SendNotification", {
+        Title = "ACCÈS AUTORISÉ",
+        Text = "Bienvenue " .. LocalPlayer.DisplayName .. ". Chargement du script.",
+        Duration = 5
+    })
+    task.wait(1)
 else
-    -- SI ACCÈS REFUSÉ
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- ROUGE
-    StatusLabel.Text = "VOUS N'AVEZ PAS ACCÈS AU SCRIPT"
-    Bar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    task.wait(3)
-    LoadingGui:Destroy()
-    return -- STOP TOUT ICI
+    StarterGui:SetCore("SendNotification", {
+        Title = "ACCÈS REFUSÉ",
+        Text = "Vous n'êtes pas sur la Whitelist.",
+        Duration = 10
+    })
+    warn("[D3X SECURITY] Kick prevention: User not whitelisted.")
+    -- Tu peux ajouter: LocalPlayer:Kick("Tu n'es pas whitelisté !") si tu veux être méchant
+    return -- ARRÊTE LE SCRIPT ICI, LE MENU NE S'OUVRIRA PAS
 end
 
 -- =================================================================
--- DEBUT DU SCRIPT ORIGINAL (AVEC MODIFICATION NOM GALAXY -> D3X HUB)
+-- DEBUT DU SCRIPT PRINCIPAL (Se lance uniquement si whitelisté)
 -- =================================================================
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
-local Player = Players.LocalPlayer
+local Player = Players.LocalPlayer -- On reprend la variable définie au début
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 
@@ -1069,7 +1048,7 @@ createFeatureBtn("INSTANT STEAL", "Open Galaxy UI (Save Base & TP)", 4, Pages.Ho
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0,12)
 
     local title = Instance.new("TextLabel")
-    title.Text = "D3X HUB PREMIUM" -- >>> MODIFICATION DU NOM ICI
+    title.Text = "GALAXY UI"
     title.Font = Enum.Font.GothamBlack
     title.TextSize = 16
     title.TextColor3 = THEME.Secondary
@@ -1149,3 +1128,4 @@ end)
 
 -- IMPORTANT: ON AFFICHE LE GUI À LA FIN 
 MainFrame.Visible = true
+
