@@ -495,8 +495,8 @@ local TweenService = game:GetService("TweenService")
 
 -- >>> CONFIGURATION WHITELIST <<<
 local Whitelist = {
-    1234567890, -- Mets l'ID de ton pote ici
-    156748920,  -- Ton ID
+    9645078432, -- x77uhq
+    
 }
 
 -- CREATION DU LOADING UI
