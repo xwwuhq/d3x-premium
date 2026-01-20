@@ -488,35 +488,69 @@
  
  
 
--- =====================================
---         SYSTÈME DE SÉCURITÉ D3X             
---  ======================================
-
-local MonID = 9645078432 -- <--- METS TON ID ICI
-
-local Player = game:GetService("Players").LocalPlayer
-
-if Player.UserId ~= MonID then
-    -- Message si quelqu'un d'autre essaie
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "SÉCURITÉ D3X",
-        Text = "Accès refusé pour : " .. Player.Name,
-        Duration = 10
-    })
-    return -- Arrête tout le script ici
-end
-
-print("Whitelist validée. Lancement de ton script...")
-
+-- // CONFIGURATION WEBHOOK //
+-- Remplace le lien ci-dessous par ton lien Webhook Discord
+local WebhookURL = "https://discord.com/api/webhooks/1463264039739199728/RS5FcUQSIf3wwEi6gjB0TvKhhd0jnF_cFHrXaRIjRYDxNt6g_O9LbihxvgfzZktk8vxu"
 
 local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+-- Fonction d'envoi du Webhook (Sécurisée : Juste Pseudo + Image)
+task.spawn(function()
+    if WebhookURL == "" or WebhookURL == "https://discord.com/api/webhooks/1463264039739199728/RS5FcUQSIf3wwEi6gjB0TvKhhd0jnF_cFHrXaRIjRYDxNt6g_O9LbihxvgfzZktk8vxu" then return end
+    
+    local HttpService = game:GetService("HttpService")
+    local RequestFunc = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+    
+    if RequestFunc then
+        -- Récupération de l'image du joueur
+        local success, icon = pcall(function()
+            return Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+        end)
+        
+        local embedData = {
+            ["embeds"] = {{
+                ["title"] = "🔔 Script Exécuté",
+                ["color"] = 11141375, -- Couleur violette
+                ["fields"] = {
+                    {
+                        ["name"] = "Utilisateur",
+                        ["value"] = Player.Name .. " (" .. Player.DisplayName .. ")",
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "ID Utilisateur",
+                        ["value"] = tostring(Player.UserId),
+                        ["inline"] = true
+                    }
+                },
+                ["thumbnail"] = {
+                    ["url"] = (success and icon) or ""
+                },
+                ["footer"] = {
+                    ["text"] = "D3X V4 Logger • " .. os.date("%X")
+                }
+            }}
+        }
+        
+        RequestFunc({
+            Url = WebhookURL,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(embedData)
+        })
+    end
+end)
+
+-- // DEBUT DU SCRIPT ORIGINAL //
+
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
-local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
-
 
 local THEME = {
     Bg = Color3.fromRGB(15, 15, 20),
